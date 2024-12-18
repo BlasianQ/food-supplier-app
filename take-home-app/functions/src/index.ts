@@ -8,27 +8,32 @@
  */
 
 import {onRequest} from "firebase-functions/v2/https";
-import admin from "firebase-admin";
+import * as admin from "firebase-admin";
+import cors from "cors";
 
 admin.initializeApp();
 
+const corsMiddleware = cors({ origin: true });
+
 export const filterByPrice = onRequest(async (request, response) => {
-  const {maxPrice} = request.query;
-  try {
-    if (!maxPrice) {
-      response.status(400).send("Missing required query param: maxPrice");
-      return;
+  corsMiddleware(request, response, async () => {
+    const {maxPrice} = request.query;
+    try {
+      if (!maxPrice) {
+        response.status(400).send("Missing required query param: maxPrice");
+        return;
+      }
+
+      const snapshot = await admin.firestore()
+        .collection("products")
+        .where("price", "<=", Number(maxPrice))
+        .get();
+
+      const data = snapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}));
+      response.status(200).json(data);
+    } catch (error) {
+      console.error("Error querying Firestore:", error);
+      response.status(500).send("Internal Server Error");
     }
-
-    const snapshot = await admin.firestore()
-      .collection("products")
-      .where("price", "<=", Number(maxPrice))
-      .get();
-
-    const data = snapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}));
-    response.status(200).json(data);
-  } catch (error) {
-    console.error("Error querying Firestore:", error);
-    response.status(500).send("Internal Server Error");
-  }
+  })
 });
