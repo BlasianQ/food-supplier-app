@@ -16,7 +16,7 @@
 3. Start the app
 
    ```bash
-    npx expo start
+   npx expo start
    ```
 
 ## Implementation Approach
@@ -32,8 +32,8 @@ from its associated https URL to display a list of filtered products from the fu
 
 ## Trade-offs
 
-After first deploying my function, it failed to fecth because it didn’t allow cross-origin requests (CORS)
-by default. So, I added a new cors node dependency to allow requests from any origin. This however, makes my
+After first deploying my function, it failed to fetch because it didn’t allow cross-origin requests (CORS)
+by default. So, I added a new CORS node dependency to allow requests from any origin. This however, makes my
 cloud function less secure, since anyone, from anywhere can fetch without authentication.
 
 ## Challenges
