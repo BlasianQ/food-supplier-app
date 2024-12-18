@@ -24,10 +24,11 @@
 In a new Firebase project, I created and populated a database with the provided Product Data.
 
 Then I began server-side development by creating a filterByPrice Firebase cloud function
-and deployed it via ```firebase deploy --only functions```
+that responds with all products whose price falls at or below the given maxPrice, in json format,
+which is then deployed via ```firebase deploy --only functions```
 
 The front-end then takes a maxPrice user-input parameter and fetches the filterByPrice function
-from its associated https URL to display a list of filtered products from the database.
+from its associated https URL to display a list of filtered products from the function response.
 
 ## Trade-offs
 
