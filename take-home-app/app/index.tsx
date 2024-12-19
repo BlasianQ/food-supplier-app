@@ -25,7 +25,8 @@ const App: React.FC = () => {
 
   // Function to fetch data from the Firebase Cloud Function
   const fetchFilteredData = async (): Promise<void> => {
-    if (!maxPrice || !/^(?:[1-9]\d*|0)?(?:\.\d+)?$/.test(maxPrice)) {
+    const decimalRegex = /^\d+(\.\d{1,2})?$/; // Only to two decimal places
+    if (!maxPrice || !decimalRegex.test(maxPrice)) {
       setError('Please enter a valid max price.');
       return;
     }
