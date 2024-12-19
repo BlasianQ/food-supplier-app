@@ -30,30 +30,23 @@ export const filterByPrice = onRequest(async (request, response) => {
         .get();
       const documents = snapshot.docs;
 
-      const scale = 100; // Used to scale up decimal numbers to integers
+      const scale = 100; // Scale factor for 2 decimal places
       const prices: number[] = documents.map(doc => Math.round(scale * doc.get("price")));
       const targetSum = Math.round(scale * Number(maxPrice));
 
-      const dp: number[][] = Array.from({ length: prices.length + 1 }, () => Array(targetSum + 1).fill(0));
-      for (let i = 1; i <= prices.length; i++) {
-        for (let j = 0; j <= targetSum; j++) {
-          if (prices[i - 1] > j) {
-            dp[i][j] = dp[i - 1][j];
-          } else {
-            dp[i][j] = Math.max(
-                dp[i - 1][j],
-                dp[i - 1][j - prices[i - 1]] + prices[i - 1]
-            );
-          }
+      const dp: number[] = Array(targetSum + 1).fill(0);
+      for (let i = 0; i <= prices.length; i++) {
+        for (let j = targetSum; j >= prices[i]; j--) {
+          dp[j] = Math.max(dp[j], dp[j - prices[i]] + prices[i]);
         }
       }
       
       const data: { id: string }[] = [];
       let k = targetSum;
-      for (let i = prices.length; i > 0; i--) {
-        if (dp[i][k] !== dp[i - 1][k]) {
-          data.push({ id: documents[i - 1].id, ...documents[i - 1].data() });
-          k -= prices[i - 1];
+      for (let i = prices.length - 1; i >= 0; i--) {
+        if (k >= prices[i] && dp[k] === dp[k - prices[i]] + prices[i]) {
+          data.push({ id: documents[i].id, ...documents[i].data() });
+          k -= prices[i];
         }
       }
 
